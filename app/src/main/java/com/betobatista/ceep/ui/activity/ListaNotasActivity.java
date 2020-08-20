@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,7 +14,9 @@ import com.betobatista.ceep.R;
 import com.betobatista.ceep.dao.NotaDAO;
 import com.betobatista.ceep.model.Nota;
 import com.betobatista.ceep.ui.recyclerview.adapter.ListaNotasAdapter;
+import com.betobatista.ceep.ui.recyclerview.adapter.listener.OnItemClickListener;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static com.betobatista.ceep.ui.activity.NotaActivitiesConstants.NOTA;
@@ -53,6 +56,9 @@ public class ListaNotasActivity extends AppCompatActivity {
 
     private List<Nota> pegarTodasNotas() {
         NotaDAO dao = new NotaDAO();
+        for (int i = 0; i< 10; i++){
+            dao.insere(new Nota("Titulo " + (i+1), "Descrição " + (i+1)));
+        }
         return dao.todos();
     }
 
@@ -63,6 +69,13 @@ public class ListaNotasActivity extends AppCompatActivity {
             adiciona(nota);
         }
         super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 2 && resultCode == RESULT_CODE && isNota(data) && data.hasExtra("posicao")){
+            Nota nota = (Nota) data.getSerializableExtra(NOTA);
+            int posicao = data.getIntExtra("posicao", -1);
+            new NotaDAO().altera(posicao, nota);
+            adapter.altera(posicao, nota);
+        }
     }
 
     private void adiciona(Nota nota) {
@@ -100,5 +113,14 @@ public class ListaNotasActivity extends AppCompatActivity {
     private void configuraAdapter(List<Nota> todasNotas, RecyclerView listaNotas) {
         adapter = new ListaNotasAdapter(this, todasNotas);
         listaNotas.setAdapter(adapter);
+        adapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(Nota nota, int position) {
+                Intent intent = new Intent(ListaNotasActivity.this, FormularioNotaActivity.class);
+                intent.putExtra(NOTA, nota);
+                intent.putExtra("posicao", position);
+                startActivityForResult(intent, 2);
+            }
+        });
     }
 }
