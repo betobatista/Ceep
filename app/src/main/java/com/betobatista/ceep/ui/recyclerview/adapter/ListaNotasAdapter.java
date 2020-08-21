@@ -13,6 +13,7 @@ import com.betobatista.ceep.R;
 import com.betobatista.ceep.model.Nota;
 import com.betobatista.ceep.ui.recyclerview.adapter.listener.OnItemClickListener;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ListaNotasAdapter extends RecyclerView.Adapter<ListaNotasAdapter.NotaViewHolder> {
@@ -50,7 +51,17 @@ public class ListaNotasAdapter extends RecyclerView.Adapter<ListaNotasAdapter.No
 
     public void altera(int posicao, Nota nota) {
         notas.set(posicao,  nota);
-        notifyDataSetChanged();
+        notifyItemChanged(posicao);
+    }
+
+    public void remove(int position) {
+        notas.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public void troca(int postionInicial, int positionFinal) {
+        Collections.swap(notas, postionInicial, positionFinal);
+        notifyItemMoved(postionInicial, positionFinal);
     }
 
     class NotaViewHolder extends RecyclerView.ViewHolder {
